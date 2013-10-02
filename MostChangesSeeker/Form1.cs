@@ -11,6 +11,8 @@ namespace MostChangesSeeker
 	public partial class Form1 : Form
 	{
 		readonly ChangesGetter m_changesGetter = new ChangesGetter();
+		TreeNodeCollection m_byPathNodes;
+		TreeNodeCollection m_byFilesNodes;
 
 		public Form1()
 		{
@@ -44,6 +46,9 @@ namespace MostChangesSeeker
 				ChangeTypes = new List<ChangeType> { ChangeType.Edit }
 			};
 
+			var byFilesDict = new Dictionary<string, int>();
+
+			var byPathRootNode = new TreeNode();
 			foreach (Changeset changeset in changesets)
 			{
 				if (startChangesetId == 0)
@@ -70,8 +75,13 @@ namespace MostChangesSeeker
 
 					fileName = fileName.Split(new[] { sourcePathTextBox.Text }, StringSplitOptions.RemoveEmptyEntries)[0];
 					var parts = fileName.Split(new[] { Path.AltDirectorySeparatorChar }, StringSplitOptions.RemoveEmptyEntries);
+					fileName = parts.Last();
+					if (byFilesDict.ContainsKey(fileName))
+						byFilesDict[fileName] = byFilesDict[fileName] + 1;
+					else
+						byFilesDict[fileName] = 1;
 
-					var childNodes = changesTreeView.Nodes[0].Nodes;
+					var childNodes = byPathRootNode.Nodes;
 					foreach (string part in parts)
 					{
 						TreeNode node;
@@ -90,10 +100,46 @@ namespace MostChangesSeeker
 					childNodes.Add(workItem.Type.Name + " " + workItem.Id);
 				}
 			}
-			UpdateNode(changesTreeView.Nodes[0]);
+			UpdateNode(byPathRootNode);
+			m_byPathNodes = byPathRootNode.Nodes;
+
+			var byCountDict = new Dictionary<int, List<string>>();
+			foreach (var pair in byFilesDict)
+			{
+				if (byCountDict.ContainsKey(pair.Value))
+					byCountDict[pair.Value].Add(pair.Key);
+				else
+					byCountDict.Add(pair.Value, new List<string>{pair.Key});
+			}
+			var countKeys = new List<int>(byCountDict.Keys);
+			countKeys = countKeys.OrderByDescending(i => i).ToList();
+			var byFilesRootNode = new TreeNode();
+			foreach (int count in countKeys)
+			{
+				var node = new TreeNode(count.ToString()) { Name = count.ToString() };
+				byFilesRootNode.Nodes.Add(node);
+				var files = byCountDict[count];
+				foreach (string file in files)
+				{
+					var childNode = new TreeNode(file) { Name = file };
+					node.Nodes.Add(childNode);
+				}
+			}
+			m_byFilesNodes = byFilesRootNode.Nodes;
+
+			var nodeCollection = m_byFilesNodes;
+			var rootNode = changesTreeView.Nodes[0];
+			for (int i = 0; i < nodeCollection.Count; i++)
+			{
+				var item = nodeCollection[i];
+				rootNode.Nodes.Add(item);
+			}
+
 			changesTreeView.Invoke(new Action(() =>
 				{
 					progressLabel.Visible = false;
+					byFilesRadioButton.Visible = true;
+					byPathRadioButton.Visible = true;
 					changesTreeView.Visible = true;
 				} ));
 		}
@@ -119,6 +165,28 @@ namespace MostChangesSeeker
 			node.Nodes.Clear();
 			nodes = nodes.OrderByDescending(i => (int) i.Tag).ToList();
 			node.Nodes.AddRange(nodes.ToArray());
+		}
+
+		private void ByPathRadioButtonCheckedChanged(object sender, EventArgs e)
+		{
+			var rootNode = changesTreeView.Nodes[0];
+			rootNode.Nodes.Clear();
+			for (int i = 0; i < m_byPathNodes.Count; i++)
+			{
+				var item = m_byPathNodes[i];
+				rootNode.Nodes.Add(item);
+			}
+		}
+
+		private void ByFilesRadioButtonCheckedChanged(object sender, EventArgs e)
+		{
+			var rootNode = changesTreeView.Nodes[0];
+			rootNode.Nodes.Clear();
+			for (int i = 0; i < m_byFilesNodes.Count; i++)
+			{
+				var item = m_byFilesNodes[i];
+				rootNode.Nodes.Add(item);
+			}
 		}
 	}
 }

@@ -35,6 +35,8 @@
 			this.sourcePathTextBox = new System.Windows.Forms.TextBox();
 			this.tabControl1 = new System.Windows.Forms.TabControl();
 			this.tabPage1 = new System.Windows.Forms.TabPage();
+			this.byPathRadioButton = new System.Windows.Forms.RadioButton();
+			this.byFilesRadioButton = new System.Windows.Forms.RadioButton();
 			this.progressLabel = new System.Windows.Forms.Label();
 			this.tabPage2 = new System.Windows.Forms.TabPage();
 			this.tfsUrlTextBox = new System.Windows.Forms.TextBox();
@@ -60,13 +62,13 @@
 			this.changesTreeView.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-			this.changesTreeView.Location = new System.Drawing.Point(0, 34);
+			this.changesTreeView.Location = new System.Drawing.Point(0, 57);
 			this.changesTreeView.Name = "changesTreeView";
 			treeNode1.Name = "Node0";
 			treeNode1.Text = "Root";
 			this.changesTreeView.Nodes.AddRange(new System.Windows.Forms.TreeNode[] {
             treeNode1});
-			this.changesTreeView.Size = new System.Drawing.Size(698, 422);
+			this.changesTreeView.Size = new System.Drawing.Size(698, 399);
 			this.changesTreeView.TabIndex = 1;
 			this.changesTreeView.Visible = false;
 			// 
@@ -100,6 +102,8 @@
 			// 
 			// tabPage1
 			// 
+			this.tabPage1.Controls.Add(this.byPathRadioButton);
+			this.tabPage1.Controls.Add(this.byFilesRadioButton);
 			this.tabPage1.Controls.Add(this.progressLabel);
 			this.tabPage1.Controls.Add(this.sourcePathTextBox);
 			this.tabPage1.Controls.Add(this.label1);
@@ -112,6 +116,32 @@
 			this.tabPage1.TabIndex = 0;
 			this.tabPage1.Text = "Main";
 			this.tabPage1.UseVisualStyleBackColor = true;
+			// 
+			// byPathRadioButton
+			// 
+			this.byPathRadioButton.AutoSize = true;
+			this.byPathRadioButton.Location = new System.Drawing.Point(73, 34);
+			this.byPathRadioButton.Name = "byPathRadioButton";
+			this.byPathRadioButton.Size = new System.Drawing.Size(61, 17);
+			this.byPathRadioButton.TabIndex = 6;
+			this.byPathRadioButton.Text = "By path";
+			this.byPathRadioButton.UseVisualStyleBackColor = true;
+			this.byPathRadioButton.Visible = false;
+			this.byPathRadioButton.CheckedChanged += new System.EventHandler(this.ByPathRadioButtonCheckedChanged);
+			// 
+			// byFilesRadioButton
+			// 
+			this.byFilesRadioButton.AutoSize = true;
+			this.byFilesRadioButton.Checked = true;
+			this.byFilesRadioButton.Location = new System.Drawing.Point(9, 34);
+			this.byFilesRadioButton.Name = "byFilesRadioButton";
+			this.byFilesRadioButton.Size = new System.Drawing.Size(58, 17);
+			this.byFilesRadioButton.TabIndex = 5;
+			this.byFilesRadioButton.TabStop = true;
+			this.byFilesRadioButton.Text = "By files";
+			this.byFilesRadioButton.UseVisualStyleBackColor = true;
+			this.byFilesRadioButton.Visible = false;
+			this.byFilesRadioButton.CheckedChanged += new System.EventHandler(this.ByFilesRadioButtonCheckedChanged);
 			// 
 			// progressLabel
 			// 
@@ -184,6 +214,8 @@
 		private System.Windows.Forms.TextBox tfsUrlTextBox;
 		private System.Windows.Forms.Label progressLabel;
 		private System.ComponentModel.BackgroundWorker backgroundWorker1;
+		private System.Windows.Forms.RadioButton byPathRadioButton;
+		private System.Windows.Forms.RadioButton byFilesRadioButton;
 	}
 }
 
