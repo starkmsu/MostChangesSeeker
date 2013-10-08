@@ -46,7 +46,7 @@ namespace MostChangesSeeker
 				ChangeTypes = new List<ChangeType> { ChangeType.Edit }
 			};
 
-			var byFilesDict = new Dictionary<string, int>();
+			var byFilesDict = new Dictionary<string, List<int>>();
 
 			var byPathRootNode = new TreeNode();
 			foreach (Changeset changeset in changesets)
@@ -73,13 +73,15 @@ namespace MostChangesSeeker
 					if (changesFilter.FileExtensions.All(f => f != Path.GetExtension(fileName)))
 						continue;
 
+					WorkItem workItem = changeset.WorkItems[0];
+
 					fileName = fileName.Split(new[] { sourcePathTextBox.Text }, StringSplitOptions.RemoveEmptyEntries)[0];
 					var parts = fileName.Split(new[] { Path.AltDirectorySeparatorChar }, StringSplitOptions.RemoveEmptyEntries);
 					fileName = parts.Last();
 					if (byFilesDict.ContainsKey(fileName))
-						byFilesDict[fileName] = byFilesDict[fileName] + 1;
+						byFilesDict[fileName].Add(workItem.Id);
 					else
-						byFilesDict[fileName] = 1;
+						byFilesDict[fileName] = new List<int> {workItem.Id};
 
 					var childNodes = byPathRootNode.Nodes;
 					foreach (string part in parts)
@@ -96,7 +98,6 @@ namespace MostChangesSeeker
 						}
 						childNodes = node.Nodes;
 					}
-					WorkItem workItem = changeset.WorkItems[0];
 					childNodes.Add(workItem.Type.Name + " " + workItem.Id);
 				}
 			}
@@ -106,10 +107,10 @@ namespace MostChangesSeeker
 			var byCountDict = new Dictionary<int, List<string>>();
 			foreach (var pair in byFilesDict)
 			{
-				if (byCountDict.ContainsKey(pair.Value))
-					byCountDict[pair.Value].Add(pair.Key);
+				if (byCountDict.ContainsKey(pair.Value.Count))
+					byCountDict[pair.Value.Count].Add(pair.Key);
 				else
-					byCountDict.Add(pair.Value, new List<string>{pair.Key});
+					byCountDict.Add(pair.Value.Count, new List<string>{pair.Key});
 			}
 			var countKeys = new List<int>(byCountDict.Keys);
 			countKeys = countKeys.OrderByDescending(i => i).ToList();
@@ -123,6 +124,13 @@ namespace MostChangesSeeker
 				{
 					var childNode = new TreeNode(file) { Name = file };
 					node.Nodes.Add(childNode);
+					List<int> workItemIds = byFilesDict[file];
+					foreach (int workItemId in workItemIds)
+					{
+						string nodeName = workItemId.ToString();
+						var workItemNode = new TreeNode(nodeName) { Name = nodeName };
+						childNode.Nodes.Add(workItemNode);
+					}
 				}
 			}
 			m_byFilesNodes = byFilesRootNode.Nodes;
